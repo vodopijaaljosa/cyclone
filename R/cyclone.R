@@ -1,0 +1,115 @@
+#' Objective function - Cyclone Simulation: Barth/Muschelknautz
+#'
+#' Calculate cyclone collection efficiency. A simple, physics-based
+#' optimization problem (potentially bi-objective). See the references [1,2].
+#'
+#' @param cyclone vector of cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be)
+#' @param fluid list of default fluid parameters (Mu, Ve, Lg, Rp, Rf, Cr)
+#' @param intervals vector specifying the particle size interval bounds
+#' @param delta vector, amount of dust (percentage value) in each interval
+#' @param cons.bounds vector of objective bounds for (-CEmin, PDmax)
+#'
+#' @return a vector (-CE, PD, geometrical constraints, CE constraint, PD constraint)
+#'
+#' @references
+#' [1] Zaefferer, M.; Breiderhoff, B.; Naujoks, B.; Friese, M.; Stork, J.; Fischbach, A.; Flasch, O.; Bartz-Beielstein, T. Tuning Multi-objective Optimization Algorithms for Cyclone Dust Separators Proceedings of the 2014 Conference on Genetic and Evolutionary Computation, ACM, 2014, 1223-1230 \cr\cr
+#' [2] Breiderhoff, B.; Bartz-Beielstein, T.; Naujoks, B.; Zaefferer, M.; Fischbach, A.; Flasch, O.; Friese, M.; Mersmann, O.; Stork, J.; Simulation and Optimization of Cyclone Dust Separators Proceedings 23. Workshop Computational Intelligence, 2013, 177-196
+#'
+#' @export
+fun_cyclone <- function(cyclone,
+                        fluid       = NULL,
+                        intervals   = c(0, 2, 4, 6, 8, 10, 15, 20, 30) * 1e-6,
+                        delta       = c(0.0, 0.02, 0.03, 0.05, 0.1, 0.3, 0.3, 0.2),
+                        cons.bounds = c(0.85, 2500)){
+
+  Da <- cyclone[1]
+  Dt <- cyclone[2]
+  H  <- cyclone[3]
+  Ht <- cyclone[4]
+  He <- cyclone[5]
+  Be <- cyclone[6]
+
+  fluid <- list(Mu = ifelse("Mu" %in% names(fluid), fluid$Mu, 1.85e-5),
+                Ve = ifelse("Ve" %in% names(fluid), fluid$Ve, (50 / 36) / 0.12),
+                Lg = ifelse("Lg" %in% names(fluid), fluid$Lg, 5e-3),
+                Rp = ifelse("Rp" %in% names(fluid), fluid$Rp, 2000),
+                Rf = ifelse("Rf" %in% names(fluid), fluid$Rf, 1.2),
+                Cr = ifelse("Cr" %in% names(fluid), fluid$Cr, 0.05))
+
+  fluid$Vp <- fluid$Ve * He * Be
+
+  xmin  <- intervals[-length(intervals)]
+  xmax  <- intervals[-1]
+  xmean <- (xmax + xmin) / 2
+
+  objs <- calculation_barth_muschelknautz(cyclone, fluid, xmean, delta)
+
+  geom.cons.1 <- Be - (Da - Dt) / 2
+  geom.cons.2 <- 0.5 - 4 * He * Be / (pi * Dt ^ 2)
+  geom.cons.3 <- 4 * He * Be / (pi * Dt ^ 2) - 0.735
+  geom.cons.4 <- 1.25 * He - Ht
+  geom.cons.5 <- 2.3 * Dt * (Da / (He * Be)) ^ (1 / 3) - H + Ht
+  geom.cons <- c(geom.cons.1, geom.cons.2, geom.cons.3, geom.cons.4, geom.cons.5)
+  objs.cons <- objs - cons.bounds
+  return(c(-objs[1], objs[2], geom.cons, -objs.cons[1], objs.cons[2]))
+}
+
+#' Cyclone Simulation: Barth/Muschelknautz
+#'
+#' Calculate cyclone collection efficiency according to Barth/Muschelknautz.
+#'
+#' @param cyclone vector of cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be)
+#' @param fluid list of fluid parameters
+#' @param xmean vector of middle points for the intervals of the particle size distribution
+#' @param delta vector, amount of dust (percentage value) in each interval
+#'
+#' @return a vector (-collection efficiency, pressure drop)
+#'
+calculation_barth_muschelknautz <- function(cyclone, fluid, xmean, delta){
+
+  # Cyclone gemoetry
+  ra <- cyclone[1] / 2 				# cyclone radius [m]
+  ri <- cyclone[2] / 2  			# vortex finder radius [m]
+  h  <- cyclone[3]        	  # total cyclone height [m]
+  ht <- cyclone[4]
+  he <- cyclone[5]       		  # inlet section height [m]
+  be <- cyclone[6]       		  # inlet section width  [m]
+
+  # Fluid parameters
+  vp   <- fluid$Vp
+  croh <- fluid$Cr
+  rhof <- fluid$Rf
+  rhop <- fluid$Rp
+  mu   <- fluid$Mu
+  lambdag <- fluid$Lg
+
+  BE <- be / ra
+  re <- ra - be / 2
+  Fe <- be * he
+  Fi <- pi * ri ^ 2
+  Ff <- Fe / Fi
+
+  # Calculation
+  B <- croh / rhof
+  lambda <- lambdag * (1 + 2 * sqrt(B))
+  alpha <- 1.0 - (0.54 - 0.153 / Ff) * BE ^ (1 / 3)
+  vi <- (vp / (pi * ri ^ 2))
+  vr <- (vp / (2 * pi * ri * (h - ht)))
+  U <- 1 / (Ff * alpha * ri / re + lambda * h / ri)
+  vphii <- U * vi
+
+  xGr <- (sqrt((18 * mu * vr * ri) / ((rhop - rhof) * vphii ^ 2)))
+  Tf <-  function(x) (1 + 2 / (x / xGr) ^ (3.564)) ^ -1.235
+  xi2 <- U ^ 2 * ri / ra * (1 - lambda * (h / ri) * U) ^ -1
+  xi3 <- 2 + 3 * U ^ (4 / 3) + U ^ 2
+  deltaP <- rhof / 2 * vi ^ 2 * (xi2 + xi3)
+  Ew <- sum(Tf(xmean) * delta)
+
+  x503 <- xmean[which(cumsum(delta) >= 0.5) [1]]
+  ve <- vp / Fe
+  vphia <- ve * (re / ra) * (1 / alpha)
+  BGr <- lambda * mu * sqrt(ra * ri) / ((1 - ri / ra) * rhop * x503 ^ 2 * sqrt(vphia * vphii))
+  E <- ifelse(B > BGr, 1 - BGr / B + BGr * Ew / B, Ew)
+
+  return(c(E, deltaP))
+}
