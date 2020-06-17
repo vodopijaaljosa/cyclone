@@ -24,7 +24,7 @@ cmop2.ht <- list(lower.bounds = c(0.900, 0.475, 3.140, 1.120, 0.900, 0.180),
 
 # Loffler10
 loffler10 <- list(lower.bounds = c(1.134, 0.378, 2.250,	0.585, 0.540, 0.180),
-                  upper.bounds = c(1.386,	0.462, 2.750,	0.715, 0.660, 0.220))
+                  upper.bounds = c(1.386, 0.462, 2.750, 0.715, 0.660, 0.220))
 
 # Loffler15
 loffler15 <- list(lower.bounds = c(1.071, 0.357, 2.125, 0.553, 0.510, 0.170),
