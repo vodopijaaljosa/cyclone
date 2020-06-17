@@ -26,7 +26,7 @@ make_plot <- function(pfs, run = 1) {
   }
 }
 
-#' Feasibility ratio
+#' Feasibility ratios
 #'
 #' This function calculates feasibility ratios.
 #'
@@ -38,7 +38,7 @@ make_plot <- function(pfs, run = 1) {
 #' }
 #' @param sample.size An integer denoting the sample size.
 #'
-#' @return A vector of feasibility ratios per constraints and overall feasibility ratio
+#' @return A vector of feasibility ratios per constraints and the overall feasibility ratio
 #'
 #' @export
 feas_ratios <- function(problem, sample.size = 1e6) {
@@ -53,12 +53,11 @@ feas_ratios <- function(problem, sample.size = 1e6) {
     cons <- 3:9
   }
 
-  cons <- problem$cons
   pop <- t(replicate(sample.size, runif(6, problem$lower.bounds, problem$upper.bounds)))
   pop <- t(apply(pop, 1, fun_cyclone))
   frs <- apply(pop[, cons] <= 0, 2, sum) / nrow(pop)
   frs <- c(frs, sum(apply(pop[, cons] <= 0, 1, all)) / nrow(pop))
-  names(frs) <- c(paste0("g", cons), "all")
+  names(frs) <- c(paste0("g", cons - 2), "all")
 
   return(frs)
 }

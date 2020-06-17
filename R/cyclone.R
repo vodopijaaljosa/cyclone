@@ -20,7 +20,7 @@ fun_cyclone <- function(cyclone,
                         fluid       = NULL,
                         intervals   = c(0, 2, 4, 6, 8, 10, 15, 20, 30) * 1e-6,
                         delta       = c(0.0, 0.02, 0.03, 0.05, 0.1, 0.3, 0.3, 0.2),
-                        cons.bounds = c(0.85, 2500)){
+                        cons.bounds = c(0.9, 1500)){
 
   Da <- cyclone[1]
   Dt <- cyclone[2]

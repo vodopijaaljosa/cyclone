@@ -29,6 +29,8 @@
 #' @return List of data frames storing the objective values of all
 #' nonodominated feasible solutions found during each run.
 #'
+#' @import emoa mco
+#'
 #' @export
 opt_mo <- function(problem,
                    method  = c("nsga2", "demo"),
@@ -144,15 +146,19 @@ run_demo <- function(problem, control) {
     })
   }
 
+  if ("cons" %in% names(problem)) {
+    if (is.null(problem$cons)) {
+      cons <- NULL
+    } else {
+      cons <- problem$cons + 2
+    }
+  } else {
+    cons <- 3:9
+  }
+
   fun_all <- function(x) {
-    out <- fun_cyclone(x)
-    out[3] <- max(out[3], 0)
-    out[4] <- max(out[4], 0)
-    out[5] <- max(out[5], 0)
-    out[6] <- max(out[6], 0)
-    out[7] <- max(out[7], 0)
-    out[8] <- max(out[8], 0)
-    out[9] <- max(out[9], 0)
+    out <- fun_cyclone(x)[c(1, 2, cons)]
+    out[3:length(out)] <- sapply(out[3:length(out)], function(z) max(z, 0))
     return(out)
   }
 
@@ -163,43 +169,43 @@ run_demo <- function(problem, control) {
               no.iter    = no.iters,
               cross.prob = cross.prob,
               scal.fac   = mut.prob,
-              no.cons    = 3)
+              no.cons    = length(cons))
 
-  pf <- find_pf(res, fun_cyclone)
+  pf <- find_pf(res, fun_cyclone, cons)
 
   return(pf)
 }
 
 ### SO ----------------------------------------------------------------------------------
-opt_so <- function(problem, obj, control = NULL) {
-  lower.bounds <- problem$lower.bounds
-  upper.bounds <- problem$upper.bounds
-
-  control <- list(pop.size   = ifelse("pop.size" %in% names(control), control$pop.size, 100),
-                  no.iters   = ifelse("no.iters" %in% names(control), control$no.iters, 200),
-                  cross.prob = ifelse("cross.prob" %in% names(control), control$cross.prob, 0.9),
-                  mut.prob   = ifelse("mut.prob" %in% names(control), control$mut.prob, 0.1))
-
-  control.de <- DEoptim::DEoptim.control(NP      = control$pop.size,
-                                         itermax = control$no.iters,
-                                         CR      = control$cross.prob,
-                                         F       = control$mut.prob,
-                                         c       = 0.5)
-
-  if (requireNamespace("memoise", quietly = TRUE)){
-    tryCatch({
-      fun_cyclone <- memoise::memoise(fun_cyclone)
-    }, error = function(err) {
-    })
-  }
-
-  fn <- function(x) fun_cyclone(x)[obj]
-
-  res <- DEoptim::DEoptim(fn      = fn,
-                          lower   = lower.bounds,
-                          upper   = upper.bounds,
-                          control = control.de)
-}
+#opt_so <- function(problem, obj, control = NULL) {
+#  lower.bounds <- problem$lower.bounds
+#  upper.bounds <- problem$upper.bounds
+#
+#  control <- list(pop.size   = ifelse("pop.size" %in% names(control), control$pop.size, 100),
+#                  no.iters   = ifelse("no.iters" %in% names(control), control$no.iters, 200),
+#                  cross.prob = ifelse("cross.prob" %in% names(control), control$cross.prob, 0.9),
+#                  mut.prob   = ifelse("mut.prob" %in% names(control), control$mut.prob, 0.1))
+#
+#  control.de <- DEoptim::DEoptim.control(NP      = control$pop.size,
+#                                         itermax = control$no.iters,
+#                                         CR      = control$cross.prob,
+#                                         F       = control$mut.prob,
+#                                         c       = 0.5)
+#
+#  if (requireNamespace("memoise", quietly = TRUE)){
+#    tryCatch({
+#      fun_cyclone <- memoise::memoise(fun_cyclone)
+#    }, error = function(err) {
+#    })
+#  }
+#
+#  fn <- function(x) fun_cyclone(x)[obj]
+#
+#  res <- DEoptim::DEoptim(fn      = fn,
+#                          lower   = lower.bounds,
+#                          upper   = upper.bounds,
+#                          control = control.de)
+#}
 
 ### Helpers -----------------------------------------------------------------------------
 find_pf <- function(res, fn, cons) {

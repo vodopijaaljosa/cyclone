@@ -9,7 +9,7 @@ fun_cyclone(
   fluid = NULL,
   intervals = c(0, 2, 4, 6, 8, 10, 15, 20, 30) * 1e-06,
   delta = c(0, 0.02, 0.03, 0.05, 0.1, 0.3, 0.3, 0.2),
-  cons.bounds = c(0.85, 2500)
+  cons.bounds = c(0.9, 1500)
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ fun_cyclone(
 \item{cons.bounds}{vector of objective bounds for (-CEmin, PDmax)}
 }
 \value{
-a vector (-CE, PD, geometrical constraint, CE constraint, PD constraint)
+a vector (-CE, PD, geometrical constraints, CE constraint, PD constraint)
 }
 \description{
 Calculate cyclone collection efficiency. A simple, physics-based
