@@ -122,6 +122,7 @@ run_nsga2 <- function(problem, control) {
                       mprob        = mut.prob,
                       generations  = 1:no.iters)
     pf <- find_pf(res, fun_cyclone, cons)
+    pf <- pf[[2]]
   } else {
     pf <- NULL
   }
@@ -209,17 +210,21 @@ run_demo <- function(problem, control) {
 
 ### Helpers -----------------------------------------------------------------------------
 find_pf <- function(res, fn, cons) {
-  res <- lapply(1:length(res), function(i) res[[i]]$par)
-  res <- do.call("rbind", res)
-  res <- t(apply(res, 1, fn))
+  res  <- lapply(1:length(res), function(i) res[[i]]$par)
+  res  <- do.call("rbind", res)
+  res.y <- t(apply(res, 1, fn))
   if (is.null(cons)) {
-    res <- res[, 1:2]
+    res.y <- res.y[, 1:2]
   } else if (length(cons) == 1) {
-    res <- res[res[, cons] <= 0, 1:2]
+    res.y <- res.y[res.y[, cons] <= 0, 1:2]
   } else {
-    res <- res[apply(res[, cons] <= 0, 1, all), 1:2]
+    keep <- apply(res.y[, cons] <= 0, 1, all)
+    res  <- res[keep, ]
+    res.y <- res.y[keep, 1:2]
   }
-  res <- t(emoa::nondominated_points(t(as.matrix(res))))
-  res <- data.frame(ce = res[, 1], pd = res[, 2])
-  return(res)
+  keep <- emoa::nds_rank(t(as.matrix(res.y))) == 1
+  res  <- res[keep, ]
+  res.y <- res.y[keep, ]
+  res.y <- data.frame(ce = res.y[, 1], pd = res.y[, 2])
+  return(list(res, res.y))
 }

@@ -4,10 +4,10 @@
 #' optimization problem (potentially bi-objective). See the references [1,2].
 #'
 #' @param cyclone vector of cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be)
-#' @param fluid list of default fluid parameters (Mu, Ve, Lg, Rp, Rf, Cr)
+#' @param fluid list of default fluid parameters (Mu, Ve, lambdag, Rhop, Rhof, Croh)
 #' @param intervals vector specifying the particle size interval bounds
 #' @param delta vector, amount of dust (percentage value) in each interval
-#' @param cons.bounds vector of objective bounds for (-CEmin, PDmax)
+#' @param cons.bounds vector of objective bounds for (CEmin, PDmax)
 #'
 #' @return a vector (-CE, PD, geometrical constraints, CE constraint, PD constraint)
 #'
@@ -31,10 +31,10 @@ fun_cyclone <- function(cyclone,
 
   fluid <- list(Mu = ifelse("Mu" %in% names(fluid), fluid$Mu, 1.85e-5),
                 Ve = ifelse("Ve" %in% names(fluid), fluid$Ve, (50 / 36) / 0.12),
-                Lg = ifelse("Lg" %in% names(fluid), fluid$Lg, 5e-3),
-                Rp = ifelse("Rp" %in% names(fluid), fluid$Rp, 2000),
-                Rf = ifelse("Rf" %in% names(fluid), fluid$Rf, 1.2),
-                Cr = ifelse("Cr" %in% names(fluid), fluid$Cr, 0.05))
+                lambdag = ifelse("lambdag" %in% names(fluid), fluid$lambdag, 5e-3),
+                Rhop = ifelse("Rhop" %in% names(fluid), fluid$Rhop, 2000),
+                Rhof = ifelse("Rhof" %in% names(fluid), fluid$Rhof, 1.2),
+                Croh = ifelse("Croh" %in% names(fluid), fluid$Croh, 0.05))
 
   fluid$Vp <- fluid$Ve * He * Be
 
@@ -48,7 +48,7 @@ fun_cyclone <- function(cyclone,
   geom.cons.2 <- 0.5 - 4 * He * Be / (pi * Dt ^ 2)
   geom.cons.3 <- 4 * He * Be / (pi * Dt ^ 2) - 0.735
   geom.cons.4 <- 1.25 * He - Ht
-  geom.cons.5 <- 2.3 * Dt * (Da / (He * Be)) ^ (1 / 3) - H + Ht
+  geom.cons.5 <- 0.23 * Dt * (Da / (He * Be)) ^ (1 / 3) - H + Ht
   geom.cons <- c(geom.cons.1, geom.cons.2, geom.cons.3, geom.cons.4, geom.cons.5)
   objs.cons <- objs - cons.bounds
   return(c(-objs[1], objs[2], geom.cons, -objs.cons[1], objs.cons[2]))
@@ -77,11 +77,11 @@ calculation_barth_muschelknautz <- function(cyclone, fluid, xmean, delta){
 
   # Fluid parameters
   vp   <- fluid$Vp
-  croh <- fluid$Cr
-  rhof <- fluid$Rf
-  rhop <- fluid$Rp
+  croh <- fluid$Croh
+  rhof <- fluid$Rhof
+  rhop <- fluid$Rhop
   mu   <- fluid$Mu
-  lambdag <- fluid$Lg
+  lambdag <- fluid$lambdag
 
   BE <- be / ra
   re <- ra - be / 2
