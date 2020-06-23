@@ -4,10 +4,10 @@
 \alias{make_plot}
 \title{Making plots}
 \usage{
-make_plot(pfs, run = 1)
+make_plot(res, run = 1)
 }
 \arguments{
-\item{pfs}{A list of Pareto front approximations obtained by \code{opt} function.}
+\item{res}{Output from \code{opt_mo}.}
 
 \item{run}{An integer denoting which run to depict in the plot.}
 }

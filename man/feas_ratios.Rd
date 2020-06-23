@@ -17,7 +17,7 @@ feas_ratios(problem, sample.size = 1e+06)
 \item{sample.size}{An integer denoting the sample size.}
 }
 \value{
-A vector of feasibility ratios per constraints and the overall feasibility ratio
+A vector of feasibility ratios per constraints and the overall feasibility ratio.
 }
 \description{
 This function calculates feasibility ratios.

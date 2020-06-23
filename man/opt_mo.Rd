@@ -34,7 +34,7 @@ Default values are used for unspecified parameters.}
 \item{no.runs}{An integer denoting the number of runs. Default is 1.}
 }
 \value{
-List of data frames storing the objective values of all
+List of data frames storing the decision varaibles (x) and objective values (y) of all
 nonodominated feasible solutions found during each run.
 }
 \description{

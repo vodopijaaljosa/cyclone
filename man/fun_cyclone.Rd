@@ -15,13 +15,13 @@ fun_cyclone(
 \arguments{
 \item{cyclone}{vector of cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be)}
 
-\item{fluid}{list of default fluid parameters (Mu, Ve, Lg, Rp, Rf, Cr)}
+\item{fluid}{list of default fluid parameters (Mu, Ve, lambdag, Rhop, Rhof, Croh)}
 
 \item{intervals}{vector specifying the particle size interval bounds}
 
 \item{delta}{vector, amount of dust (percentage value) in each interval}
 
-\item{cons.bounds}{vector of objective bounds for (-CEmin, PDmax)}
+\item{cons.bounds}{vector of objective bounds for (CEmin, PDmax)}
 }
 \value{
 a vector (-CE, PD, geometrical constraints, CE constraint, PD constraint)
