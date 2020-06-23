@@ -54,4 +54,4 @@ cmops <- list(loffler = loffler20,
               stairmand = stairmand20,
               muschelknautz = muschelknautz20)
 
-devtools::use_data(cmops)
+usethis::use_data(cmops, overwrite = TRUE)
