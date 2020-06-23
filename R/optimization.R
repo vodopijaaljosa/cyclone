@@ -121,13 +121,12 @@ run_nsga2 <- function(problem, control) {
                       cprob        = cross.prob,
                       mprob        = mut.prob,
                       generations  = 1:no.iters)
-    pf <- find_pf(res, fun_cyclone, cons)
-    pf <- pf[[2]]
+    res <- find_pf(res, fun_cyclone, cons)
   } else {
-    pf <- NULL
+    res <- NULL
   }
 
-  return(pf)
+  return(res)
 }
 
 ### DEMO --------------------------------------------------------------------------------
@@ -226,5 +225,7 @@ find_pf <- function(res, fn, cons) {
   res  <- res[keep, ]
   res.y <- res.y[keep, ]
   res.y <- data.frame(ce = res.y[, 1], pd = res.y[, 2])
-  return(list(res, res.y))
+  res <- data.frame(res)
+  names(res) <- c("Da", "Dt", "H", "Ht", "He", "Be")
+  return(list(x = res, y = res.y))
 }
