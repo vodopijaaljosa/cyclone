@@ -38,7 +38,7 @@ make_plot <- function(pfs, run = 1) {
 #' }
 #' @param sample.size An integer denoting the sample size.
 #'
-#' @return A vector of feasibility ratios per constraints and the overall feasibility ratio
+#' @return A vector of feasibility ratios per constraints and the overall feasibility ratio.
 #'
 #' @export
 feas_ratios <- function(problem, sample.size = 1e6) {
@@ -60,4 +60,21 @@ feas_ratios <- function(problem, sample.size = 1e6) {
   names(frs) <- c(paste0("g", cons - 2), "all")
 
   return(frs)
+}
+
+#' Create problem instance
+#'
+#' This function creates cmop instances based on default cyclone parameters
+#'
+#' @param cyclone Vector of default cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be).
+#' @param eps Float from [0, 1] denoting variance in gemoetrical parameters.
+#'
+#' @return A list of upper and lower bounds.
+#'
+#' @export
+create_cmop <- function(cyclone, eps = 0.1) {
+  dc <- cyclone * eps
+  lower.bounds <- cyclone - dc
+  upper.bounds <- cyclone + dc
+  return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds))
 }
