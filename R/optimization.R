@@ -26,7 +26,7 @@
 #' Default values are used for unspecified parameters.
 #' @param no.runs An integer denoting the number of runs. Default is 1.
 #'
-#' @return List of data frames storing the objective values of all
+#' @return List of data frames storing the decision varaibles (x) and objective values (y) of all
 #' nonodominated feasible solutions found during each run.
 #'
 #' @import emoa mco
@@ -171,9 +171,9 @@ run_demo <- function(problem, control) {
               scal.fac   = mut.prob,
               no.cons    = length(cons))
 
-  pf <- find_pf(res, fun_cyclone, cons)
+  res <- find_pf(res, fun_cyclone, cons)
 
-  return(pf)
+  return(res)
 }
 
 ### SO ----------------------------------------------------------------------------------
