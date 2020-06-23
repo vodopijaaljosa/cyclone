@@ -15,5 +15,5 @@ create_cmop(cyclone, eps = 0.1)
 A list of upper and lower bounds.
 }
 \description{
-This function creates cmop instances based on default cyclone parameters
+This function creates problem instances based on default cyclone parameters
 }

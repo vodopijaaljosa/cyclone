@@ -9,9 +9,6 @@
 #'
 #' @export
 make_plot <- function(res, run = 1) {
-  if ((!run%%1 == 0) | (run < 1) | (run > length(pfs))) {
-    stop("'run' not an integer or run not in [1,length(pfs)]")
-  }
   pf <- res[[paste0("run.", run)]]$y
   if (requireNamespace("ggplot2", quietly = TRUE)) {
     ggplot2::ggplot(pf, ggplot2::aes(x = -ce, y = pd)) +
@@ -64,7 +61,7 @@ feas_ratios <- function(problem, sample.size = 1e6) {
 
 #' Creating problem instance
 #'
-#' This function creates cmop instances based on default cyclone parameters
+#' This function creates problem instances based on default cyclone parameters
 #'
 #' @param cyclone Vector of default cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be).
 #' @param eps Float from [0, 1] denoting variance in gemoetrical parameters. Default is 0.1.
