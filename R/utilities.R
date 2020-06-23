@@ -2,17 +2,17 @@
 #'
 #' This function makes a plot of the selected Pareto front approximation.
 #'
-#' @param pfs A list of Pareto front approximations obtained by \code{opt} function.
+#' @param res Output from \code{opt_mo}.
 #' @param run An integer denoting which run to depict in the plot.
 #'
 #' @return A plot depicting Pareto front approximation of the selected run.
 #'
 #' @export
-make_plot <- function(pfs, run = 1) {
+make_plot <- function(res, run = 1) {
   if ((!run%%1 == 0) | (run < 1) | (run > length(pfs))) {
     stop("'run' not an integer or run not in [1,length(pfs)]")
   }
-  pf <- pfs[[paste0("run.", run)]]
+  pf <- res[[paste0("run.", run)]]$y
   if (requireNamespace("ggplot2", quietly = TRUE)) {
     ggplot2::ggplot(pf, ggplot2::aes(x = -ce, y = pd)) +
       ggplot2::theme_bw() +
@@ -62,12 +62,12 @@ feas_ratios <- function(problem, sample.size = 1e6) {
   return(frs)
 }
 
-#' Create problem instance
+#' Creating problem instance
 #'
 #' This function creates cmop instances based on default cyclone parameters
 #'
 #' @param cyclone Vector of default cyclone's geometrical parameters (Da, Dt, H, Ht, He, Be).
-#' @param eps Float from [0, 1] denoting variance in gemoetrical parameters.
+#' @param eps Float from [0, 1] denoting variance in gemoetrical parameters. Default is 0.1.
 #'
 #' @return A list of upper and lower bounds.
 #'
@@ -77,4 +77,22 @@ create_cmop <- function(cyclone, eps = 0.1) {
   lower.bounds <- cyclone - dc
   upper.bounds <- cyclone + dc
   return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds))
+}
+
+#' Computing parameter statistics
+#'
+#' This function computes the mean and sd of parameters given a set of solutions
+#'
+#' @param res Output from \code{opt_mo}.
+#' @param run An integer denoting which run to use.
+#' @param dec An integer denoting number of decimal points.
+#'
+#' @return Means and deviations of geometrical parameters.
+#'
+#' @export
+param_stat <- function(res, run = 1, dec = 8) {
+  res <- res[[paste0("run.", run)]]$x
+  avg <- round(apply(res, 2, mean), dec)
+  sd  <- round(apply(res, 2, sd), dec)
+  return(list(mean = avg, sd = sd))
 }
