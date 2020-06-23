@@ -1,0 +1,56 @@
+---
+title: "examples"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(cyclone)
+```
+
+## cmops dataset:
+
+```{r}
+cmops
+```
+
+## Creating new cmop instances:
+
+```{r}
+loffler.15 <- create_cmop(cmops$loffler$default, 0.15)
+loffler.15
+```
+
+## Computing feasibility ratios:
+
+```{r}
+feas_ratios(loffler.15)
+```
+
+## Optimization:
+
+```{r}
+res.loffler.15 <- opt_mo(loffler.15)
+```
+
+## Means and deviations of geometrical parameters:
+
+```{r}
+param_stat(res.loffler.15)
+```
+
+## Plot:
+
+```{r}
+make_plot(res.loffler.15)
+```

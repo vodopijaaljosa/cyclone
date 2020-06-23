@@ -5,3 +5,4 @@
 *.Rproj
 experiments.R
 *.png
+inst/doc
