@@ -4,22 +4,25 @@
 #'
 #' @param res Output from \code{opt_mo}.
 #' @param run An integer denoting which run to depict in the plot.
+#' @param title A string denoting the title. Default is NULL.
 #'
 #' @return A plot depicting Pareto front approximation of the selected run.
 #'
 #' @export
-make_plot <- function(res, run = 1) {
+make_plot <- function(res, run = 1, title = NULL) {
   pf <- res[[paste0("run.", run)]]$y
   if (requireNamespace("ggplot2", quietly = TRUE)) {
     ggplot2::ggplot(pf, ggplot2::aes(x = -ce, y = pd)) +
       ggplot2::theme_bw() +
       ggplot2::xlab("f1: Collection efficency") +
       ggplot2::ylab("f2: Pressure drop") +
-      ggplot2::geom_point()
+      ggplot2::geom_point() +
+      ggplot2::labs(title = title)
   } else {
     plot(-pf$ce, pf$pd,
-         xlab = "f1: Collection efficency",
-         ylab = "f2: Pressure drop")
+         xlab  = "f1: Collection efficency",
+         ylab  = "f2: Pressure drop",
+         main = title)
   }
 }
 
