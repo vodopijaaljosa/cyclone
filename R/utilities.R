@@ -17,12 +17,17 @@ make_plot <- function(res, run = 1, title = NULL) {
       ggplot2::xlab("f1: Collection efficency") +
       ggplot2::ylab("f2: Pressure drop") +
       ggplot2::geom_point() +
-      ggplot2::labs(title = title)
+      ggplot2::labs(title = title) +
+      ggplot2::xlim(0.9, 1) +
+      ggplot2::ylim(0, 1500)
+
   } else {
     plot(-pf$ce, pf$pd,
          xlab  = "f1: Collection efficency",
          ylab  = "f2: Pressure drop",
-         main = title)
+         main  = title,
+         xlim  = c(0.9, 1),
+         ylim  = c(0, 1500))
   }
 }
 

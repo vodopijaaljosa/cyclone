@@ -6,3 +6,4 @@
 experiments.R
 *.png
 inst/doc
+report.R
