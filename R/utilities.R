@@ -77,12 +77,10 @@ feas_ratios <- function(problem, sample.size = 1e6) {
 #' @return A list of upper and lower bounds.
 #'
 #' @export
-create_cmop <- function(cyclone, eps = 0.1) {
+create_cmop <- function(cyclone, Vp = NULL, ratio.cut = NULL, eps = 0.1) {
   dc <- cyclone * eps
   lower.bounds <- cyclone - dc
   upper.bounds <- cyclone + dc
-  Vp <- ifelse("Vp" %in% names(cyclone), cyclone$Vp, NULL)
-  ratio.cut <- ifelse("ratio.cut" %in% names(cyclone), cyclone$ratio.cut, NULL)
   return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds, Vp = Vp, ratio.cut = ratio.cut))
 }
 
