@@ -81,7 +81,9 @@ create_cmop <- function(cyclone, eps = 0.1) {
   dc <- cyclone * eps
   lower.bounds <- cyclone - dc
   upper.bounds <- cyclone + dc
-  return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds))
+  Vp <- ifelse("Vp" %in% names(cyclone), cyclone$Vp, NULL)
+  ratio.cut <- ifelse("ratio.cut" %in% names(cyclone), cyclone$ratio.cut, NULL)
+  return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds, Vp = Vp, ratio.cut = ratio.cut))
 }
 
 #' Computing parameter statistics
