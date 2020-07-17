@@ -49,9 +49,23 @@ muschelknautz20 <- list(default = c(0.680, 0.170, 0.934, 0.311, 0.173, 0.058),
                         lower.bounds = c(0.544, 0.136, 0.7472,	0.2488, 0.1384, 0.0464),
                         upper.bounds = c(0.816, 0.204, 1.1208, 0.3732, 0.2076, 0.0696))
 
+### Standard cyclones -------------------------------------------------------------------
+
+standard1 <- list(default = c(0.750, 0.450, 2.350, 0.700, 0.450, 0.180), Vp = 1.00, ratio.cut = 2.531914894)
+
+standard3 <- list(default = c(0.950, 0.560, 2.950, 0.900, 0.560, 0.224), Vp = 1.60, ratio.cut = 2.702127660)
+
+standard8 <- list(default = c(1.700, 1.000, 5.250, 1.650, 1.000, 0.400), Vp = 5.00, ratio.cut = 3.617021277)
+
+standard9 <- list(default = c(0.450, 0.236, 1.570, 0.400, 0.224, 0.090), Vp = 0.25, ratio.cut = 1.574468085)
+
 # List of CMOPs
 cmops <- list(loffler = loffler20,
               stairmand = stairmand20,
-              muschelknautz = muschelknautz20)
+              muschelknautz = muschelknautz20,
+              standard1 = standard1,
+              standard3 = standard3,
+              standard8 = standard8,
+              standard9 = standard9)
 
 usethis::use_data(cmops, overwrite = TRUE)
