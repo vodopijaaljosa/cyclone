@@ -20,7 +20,8 @@ fun_cyclone <- function(cyclone,
                         fluid       = NULL,
                         intervals   = c(0, 2, 4, 6, 8, 10, 15, 20, 30) * 1e-6,
                         delta       = c(0.0, 0.02, 0.03, 0.05, 0.1, 0.3, 0.3, 0.2),
-                        cons.bounds = c(0.9, 1500)){
+                        cons.bounds = c(0.9, 1500),
+                        ratio.cut   = 1){
 
   Da <- cyclone[1]
   Dt <- cyclone[2]
@@ -30,13 +31,13 @@ fun_cyclone <- function(cyclone,
   Be <- cyclone[6]
 
   fluid <- list(Mu = ifelse("Mu" %in% names(fluid), fluid$Mu, 1.85e-5),
-                Ve = ifelse("Ve" %in% names(fluid), fluid$Ve, (50 / 36) / 0.12),
+                Vp = ifelse("Vp" %in% names(fluid), fluid$Vp, 1.3889),
                 lambdag = ifelse("lambdag" %in% names(fluid), fluid$lambdag, 5e-3),
                 Rhop = ifelse("Rhop" %in% names(fluid), fluid$Rhop, 2000),
                 Rhof = ifelse("Rhof" %in% names(fluid), fluid$Rhof, 1.2),
                 Croh = ifelse("Croh" %in% names(fluid), fluid$Croh, 0.05))
 
-  fluid$Vp <- fluid$Ve * He * Be
+  intervals <- intervals * ratio.cut
 
   xmin  <- intervals[-length(intervals)]
   xmax  <- intervals[-1]
