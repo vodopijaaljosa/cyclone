@@ -95,3 +95,4 @@ cmops <- list(loffler = loffler20,
               standard9 = standard9)
 
 usethis::use_data(cmops, overwrite = TRUE)
+usethis::use_data(eskal, overwrite = TRUE)
