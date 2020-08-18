@@ -84,6 +84,9 @@ run_nsga2 <- function(problem, control) {
 
   lower.bounds <- problem$lower.bounds
   upper.bounds <- problem$upper.bounds
+  delta <- problem$delta
+  intervals <- problem$intervals
+  fluid <- problem$fluid
   pop.size   <- control$pop.size
   no.iters   <- control$no.iters
   cross.prob <- control$cross.prob
@@ -106,23 +109,23 @@ run_nsga2 <- function(problem, control) {
     cons <- 3:9
   }
 
-  if ("Vp" %in% names(problem)) {
-    if (!is.null(problem$Vp)) {
-      fluid <- list(Vp = problem$Vp)
-    }
-  } else {
-    fluid <- NULL
-  }
+  #if ("Vp" %in% names(problem)) {
+  #  if (!is.null(problem$Vp)) {
+  #    fluid <- list(Vp = problem$Vp)
+  #  }
+  #} else {
+  #  fluid <- NULL
+  #}
 
-  if ("ratio.cut" %in% names(problem)) {
-    ratio.cut <- problem$ratio.cut
-  } else {
-    ratio.cut <- NULL
-  }
+  #if ("ratio.cut" %in% names(problem)) {
+  #  ratio.cut <- problem$ratio.cut
+  #} else {
+  #  ratio.cut <- NULL
+  #}
 
-  fun_objs <- function(x) fun_cyclone(x, fluid = fluid, ratio.cut = ratio.cut)[1:2]
-  fun_cons <- function(x) -fun_cyclone(x, fluid = fluid, ratio.cut = ratio.cut)[cons]
-  fun_both <- function(x) fun_cyclone(x, fluid = fluid, ratio.cut = ratio.cut)
+  fun_objs <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals)[1:2]
+  fun_cons <- function(x) -fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals)[cons]
+  fun_both <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals)
 
   if (requireNamespace("mco", quietly = TRUE)){
     res <- mco::nsga2(fn           = fun_objs,

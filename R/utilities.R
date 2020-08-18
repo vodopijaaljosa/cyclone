@@ -58,8 +58,26 @@ feas_ratios <- function(problem, sample.size = 1e6) {
     cons <- 3:9
   }
 
+  #if ("Vp" %in% names(problem)) {
+  #  if (!is.null(problem$Vp)) {
+  #    fluid <- list(Vp = problem$Vp)
+  #  }
+  #} else {
+  #  fluid <- NULL
+  #}
+
+  #if ("ratio.cut" %in% names(problem)) {
+  #  ratio.cut <- problem$ratio.cut
+  #} else {
+  #  ratio.cut <- NULL
+  #}
+
+  fun_both <- function(x) fun_cyclone(x, fluid = problem$fluid,
+                                      intervals = problem$intervals,
+                                      delta = problem$delta)
+
   pop <- t(replicate(sample.size, runif(6, problem$lower.bounds, problem$upper.bounds)))
-  pop <- t(apply(pop, 1, fun_cyclone))
+  pop <- t(apply(pop, 1, fun_both))
   frs <- apply(pop[, cons] <= 0, 2, sum) / nrow(pop)
   frs <- c(frs, sum(apply(pop[, cons] <= 0, 1, all)) / nrow(pop))
   names(frs) <- c(paste0("g", cons - 2), "all")
@@ -82,6 +100,22 @@ create_cmop <- function(cyclone, Vp = NULL, ratio.cut = NULL, eps = 0.1) {
   lower.bounds <- cyclone - dc
   upper.bounds <- cyclone + dc
   return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds, Vp = Vp, ratio.cut = ratio.cut))
+}
+
+create_cmop_eskal <- function(prob, instance = 1, eps = 0.1) {
+  cyclone <- prob$default
+  delta <- prob$eskal[instance]
+  Vp <- prob$Vp
+  dc <- cyclone * eps
+  lower.bounds <- cyclone - dc
+  upper.bounds <- cyclone + dc
+  delta <- eskal[[delta]]
+  Rhop <- eskal$Rhop
+  Rhof <- eskal$Rhof
+  intervals <- eskal$intervals[1:(length(delta) + 1)]
+  fluid <- list(Rhop = Rhop, Rhof = Rhof, Vp = Vp)
+  return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds,
+              intervals = intervals, delta = delta, fluid = fluid))
 }
 
 #' Computing parameter statistics
