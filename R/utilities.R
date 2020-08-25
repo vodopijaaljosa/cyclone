@@ -9,8 +9,10 @@
 #' @return A plot depicting Pareto front approximation of the selected run.
 #'
 #' @export
-make_plot <- function(res, run = 1, title = NULL) {
+make_plot <- function(res, run = 1, title = NULL, res.so = NULL, run.so = 1) {
   pf <- res[[paste0("run.", run)]]$y
+  so <- ifelse(is.null(res.so), NULL, -res.so[[paste0("run.", run.so)]]$y)
+  #so <- max(abs(pf$ce)) #todo: replace
   if (requireNamespace("ggplot2", quietly = TRUE)) {
     ggplot2::ggplot(pf, ggplot2::aes(x = -ce, y = pd)) +
       ggplot2::theme_bw() +
@@ -19,7 +21,8 @@ make_plot <- function(res, run = 1, title = NULL) {
       ggplot2::geom_point() +
       ggplot2::labs(title = title) +
       ggplot2::xlim(0.9, 1) +
-      ggplot2::ylim(0, 1500)
+      ggplot2::ylim(0, 1500) +
+      ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
 
   } else {
     plot(-pf$ce, pf$pd,
@@ -50,6 +53,8 @@ feas_ratios <- function(problem, sample.size = 1e6) {
 
   if ("cons" %in% names(problem)) {
     if (is.null(problem$cons)) {
+      cons <- 3:9
+    } else if (!problem$cons) {
       cons <- NULL
     } else {
       cons <- problem$cons + 2
@@ -57,20 +62,6 @@ feas_ratios <- function(problem, sample.size = 1e6) {
   } else {
     cons <- 3:9
   }
-
-  #if ("Vp" %in% names(problem)) {
-  #  if (!is.null(problem$Vp)) {
-  #    fluid <- list(Vp = problem$Vp)
-  #  }
-  #} else {
-  #  fluid <- NULL
-  #}
-
-  #if ("ratio.cut" %in% names(problem)) {
-  #  ratio.cut <- problem$ratio.cut
-  #} else {
-  #  ratio.cut <- NULL
-  #}
 
   fun_both <- function(x) fun_cyclone(x, fluid = problem$fluid,
                                       intervals = problem$intervals,
@@ -95,27 +86,25 @@ feas_ratios <- function(problem, sample.size = 1e6) {
 #' @return A list of upper and lower bounds.
 #'
 #' @export
-create_cmop <- function(cyclone, Vp = NULL, ratio.cut = NULL, eps = 0.1) {
-  dc <- cyclone * eps
-  lower.bounds <- cyclone - dc
-  upper.bounds <- cyclone + dc
-  return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds, Vp = Vp, ratio.cut = ratio.cut))
-}
-
-create_cmop_eskal <- function(prob, instance = 1, eps = 0.1) {
-  cyclone <- prob$default
-  delta <- prob$eskal[instance]
-  Vp <- prob$Vp
-  dc <- cyclone * eps
-  lower.bounds <- cyclone - dc
-  upper.bounds <- cyclone + dc
-  delta <- eskal[[delta]]
-  Rhop <- eskal$Rhop
-  Rhof <- eskal$Rhof
-  intervals <- eskal$intervals[1:(length(delta) + 1)]
-  fluid <- list(Rhop = Rhop, Rhof = Rhof, Vp = Vp)
+create_cmop <- function(prob, eps = 0.1, eskal.instance = 2) {
+  dc <- prob$default * eps
+  lower.bounds <- prob$default - dc
+  upper.bounds <- prob$default + dc
+  fluid <- prob$fluid
+  cons <- prob$cons
+  name <- prob$name
+  if (!is.null(prob$eskal)) {
+    delta <- eskal[[prob$eskal[eskal.instance]]]
+    intervals <- eskal$intervals[1:(length(delta) + 1)]
+    fluid$Rhop <- eskal$Rhop
+    fluid$Rhof <- eskal$Rhof
+  } else {
+    delta <- NULL
+    intervals <- NULL
+  }
   return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds,
-              intervals = intervals, delta = delta, fluid = fluid))
+              intervals = intervals, delta = delta, fluid = fluid, cons = cons,
+              name = name))
 }
 
 #' Computing parameter statistics
