@@ -11,21 +11,21 @@
 #' @export
 make_plot <- function(res, run = 1, title = NULL, res.so = NULL, run.so = 1) {
   pf <- res[[paste0("run.", run)]]$y
-  so <- ifelse(is.null(res.so), NULL, -res.so[[paste0("run.", run.so)]]$y)
+  #so <- ifelse(is.null(res.so), NULL, -res.so[[paste0("run.", run.so)]]$y)
   #so <- max(abs(pf$ce)) #todo: replace
   if (requireNamespace("ggplot2", quietly = TRUE)) {
-    ggplot2::ggplot(pf, ggplot2::aes(x = -ce, y = pd)) +
+    ggplot2::ggplot(pf, ggplot2::aes(x = ce, y = pd)) +
       ggplot2::theme_bw() +
       ggplot2::xlab("f1: Collection efficency") +
       ggplot2::ylab("f2: Pressure drop") +
       ggplot2::geom_point() +
       ggplot2::labs(title = title) +
       ggplot2::xlim(0.9, 1) +
-      ggplot2::ylim(0, 1500) +
-      ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
+      ggplot2::ylim(0, 1)
+      #ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
 
   } else {
-    plot(-pf$ce, pf$pd,
+    plot(pf$ce, pf$pd,
          xlab  = "f1: Collection efficency",
          ylab  = "f2: Pressure drop",
          main  = title,

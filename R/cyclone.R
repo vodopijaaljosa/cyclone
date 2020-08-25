@@ -56,7 +56,7 @@ fun_cyclone <- function(cyclone,
   geom.cons.5 <- 0.23 * Dt * (Da / (He * Be)) ^ (1 / 3) - H + Ht
   geom.cons <- c(geom.cons.1, geom.cons.2, geom.cons.3, geom.cons.4, geom.cons.5)
   objs.cons <- objs - cons.bounds
-  return(c(-objs[1], objs[2], geom.cons, -objs.cons[1], objs.cons[2]))
+  return(c(1 - objs[1], objs[2] / 1500, geom.cons, -objs.cons[1], objs.cons[2] / 1500))
 }
 
 #' Cyclone Simulation: Barth/Muschelknautz
