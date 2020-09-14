@@ -21,7 +21,7 @@ devtools::load_all()
 ## Create a problem and check if the standard cyclone satisfies the constraints:
 
 ```{r}
-prob <- create_cmop(probs$standard.200, distribution = "eskal")
+prob <- create_cmop(probs$standard.200, distribution = "esqua")
 values <- fun_cyclone(
   prob$default, 
   fluid = prob$fluid, 
