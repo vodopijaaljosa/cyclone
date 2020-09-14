@@ -17,11 +17,11 @@
 #'
 #' @export
 fun_cyclone <- function(cyclone,
-                        fluid       = NULL,
-                        intervals   = NULL,
-                        delta       = NULL,
-                        ratio.cut   = NULL,
-                        cons.bounds = c(0.8, 1500)){
+                        fluid = NULL,
+                        intervals = NULL,
+                        delta = NULL,
+                        #ratio.cut = NULL,
+                        cons.bound = NULL){
 
   Da <- cyclone[1]
   Dt <- cyclone[2]
@@ -29,19 +29,28 @@ fun_cyclone <- function(cyclone,
   Ht <- cyclone[4]
   He <- cyclone[5]
   Be <- cyclone[6]
-
+  
   if (is.null(intervals)) intervals <- c(0, 2, 4, 6, 8, 10, 15, 20, 30) * 1e-6
   if (is.null(delta)) delta <- c(0.0, 0.02, 0.03, 0.05, 0.1, 0.3, 0.3, 0.2)
-  ratio.cut <- ifelse(is.null(ratio.cut), 1, ratio.cut)
+  #if (is.null(ratio.cut)) ratio.cut <- 1
+  
+  fluid <- list(
+    Mu = ifelse("Mu" %in% names(fluid), fluid$Mu, 1.85e-5),
+    Vp = ifelse("Vp" %in% names(fluid), fluid$Vp, 1.3889),
+    lambdag = ifelse("lambdag" %in% names(fluid), fluid$lambdag, 5e-3),
+    Rhop = ifelse("Rhop" %in% names(fluid), fluid$Rhop, 2000),
+    Rhof = ifelse("Rhof" %in% names(fluid), fluid$Rhof, 1.2),
+    Croh = ifelse("Croh" %in% names(fluid), fluid$Croh, 0.05)
+  )
+  
+  cons.bound <- list(
+    E = ifelse("E" %in% names(cons.bound), cons.bound$E, 0.9),
+    deltaP = ifelse("deltaP" %in% names(cons.bound), cons.bound$deltaP, 1500),
+    geom.1 = ifelse("geom.1" %in% names(cons.bound), cons.bound$geom.1, 1),
+    geom.2 = ifelse("geom.2" %in% names(cons.bound), cons.bound$geom.2, 0.5)
+  )
 
-  fluid <- list(Mu = ifelse("Mu" %in% names(fluid), fluid$Mu, 1.85e-5),
-                Vp = ifelse("Vp" %in% names(fluid), fluid$Vp, 1.3889),
-                lambdag = ifelse("lambdag" %in% names(fluid), fluid$lambdag, 5e-3),
-                Rhop = ifelse("Rhop" %in% names(fluid), fluid$Rhop, 2000),
-                Rhof = ifelse("Rhof" %in% names(fluid), fluid$Rhof, 1.2),
-                Croh = ifelse("Croh" %in% names(fluid), fluid$Croh, 0.05))
-
-  intervals <- intervals * ratio.cut
+  #intervals <- intervals * ratio.cut
 
   xmin  <- intervals[-length(intervals)]
   xmax  <- intervals[-1]
@@ -49,14 +58,17 @@ fun_cyclone <- function(cyclone,
 
   objs <- calculation_barth_muschelknautz(cyclone, fluid, xmean, delta)
 
-  geom.cons.1 <- Be - (Da - Dt) / 2
-  geom.cons.2 <- 0.5 - 4 * He * Be / (pi * Dt ^ 2)
+  geom.cons.1 <- (Be - (Da - Dt) / 2) * cons.bound$geom.1
+  geom.cons.2 <- cons.bound$geom.2 - 4 * He * Be / (pi * Dt ^ 2)
   geom.cons.3 <- 4 * He * Be / (pi * Dt ^ 2) - 0.735
   geom.cons.4 <- 1.25 * He - Ht
   geom.cons.5 <- 0.23 * Dt * (Da / (He * Be)) ^ (1 / 3) - H + Ht
   geom.cons <- c(geom.cons.1, geom.cons.2, geom.cons.3, geom.cons.4, geom.cons.5)
-  objs.cons <- objs - cons.bounds
-  return(c(1 - objs[1], objs[2] / 1500, geom.cons, -objs.cons[1], objs.cons[2] / 1500))
+  objs.cons <- objs - c(cons.bounds$E, cons.bound$deltaP)
+  
+  values <- c(1 - objs[1], objs[2] / cons.bound$deltaP, geom.cons, -objs.cons[1], objs.cons[2] / cons.bound$deltaP)
+  
+  return(values)
 }
 
 #' Cyclone Simulation: Barth/Muschelknautz

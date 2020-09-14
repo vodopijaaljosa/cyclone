@@ -88,24 +88,58 @@ feas_ratios <- function(problem, sample.size = 1e6) {
 #'
 #' @export
 create_cmop <- function(prob, eps = 0.1, eskal.instance = 2) {
-  dc <- prob$default * eps
-  lower.bounds <- prob$default - dc
-  upper.bounds <- prob$default + dc
+  default <- prob$default
+  dc <- default * eps
+  lower.bounds <- default - dc
+  upper.bounds <- default + dc
+  
+  prob.eskal <- prob$eskal
   fluid <- prob$fluid
   cons <- prob$cons
-  name <- prob$name
-  if (!is.null(prob$eskal)) {
-    delta <- eskal[[prob$eskal[eskal.instance]]]
+  type <- prob$type
+  
+  if (!is.null(prob.eskal)) {
+    delta <- eskal[[prob.eskal[eskal.instance]]]
     intervals <- eskal$intervals[1:(length(delta) + 1)]
     fluid$Rhop <- eskal$Rhop
-    fluid$Rhof <- eskal$Rhof
   } else {
     delta <- NULL
     intervals <- NULL
   }
-  return(list(default = prob$default, lower.bounds = lower.bounds, upper.bounds = upper.bounds,
-              intervals = intervals, delta = delta, fluid = fluid, cons = cons,
-              name = name))
+  
+  if (is.null(cons)) cons <- 1:7
+  
+  if (!is.null(type)) {
+    if (type == "low") {
+      cons.bound <- list(
+        E = 0.85, 
+        deltaP = 1500, 
+        geom.1 = 0, 
+        geom.2 = 0.5
+      )
+    } else {
+      cons.bound <- list(
+        E = 0.9, 
+        deltaP = 1500, 
+        geom.1 = 1, 
+        geom.2 = 0.45
+      )
+    }
+  } else {
+    cons.bound <- list(
+      E = 0.9, 
+      deltaP = 1500, 
+      geom.1 = 1, 
+      geom.2 = 0.5
+    )
+  }
+  
+  prob.out <- list(
+    default = default, lower.bounds = lower.bounds, upper.bounds = upper.bounds, intervals = intervals, 
+    delta = delta, fluid = fluid, cons = cons, cons.bound = cons.bound, name = prob$name
+  )
+  
+  return(prob.out)
 }
 
 #' Computing parameter statistics
