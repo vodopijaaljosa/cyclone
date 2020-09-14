@@ -87,21 +87,24 @@ feas_ratios <- function(problem, sample.size = 1e6) {
 #' @return A list of upper and lower bounds.
 #'
 #' @export
-create_cmop <- function(prob, eps = 0.1, eskal.instance = 2) {
+create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
   default <- prob$default
   dc <- default * eps
   lower.bounds <- default - dc
   upper.bounds <- default + dc
   
-  prob.eskal <- prob$eskal
   fluid <- prob$fluid
   cons <- prob$cons
   type <- prob$type
   
-  if (!is.null(prob.eskal)) {
-    delta <- eskal[[prob.eskal[eskal.instance]]]
+  if (distribution == "eskal") {
+    delta <- eskal[[prob$eskal]]
     intervals <- eskal$intervals[1:(length(delta) + 1)]
     fluid$Rhop <- eskal$Rhop
+  } else if (distribution == "esqua") {
+    delta <- esqua[[prob$esqua]]
+    intervals <- esqua$intervals[1:(length(delta) + 1)]
+    fluid$Rhop <- esqua$Rhop
   } else {
     delta <- NULL
     intervals <- NULL

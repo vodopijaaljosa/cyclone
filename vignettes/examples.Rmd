@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-library(cyclone)
+devtools::load_all()
 ```
 
 ## Problems:
@@ -27,13 +27,13 @@ probs
 ## Creating new problem instances:
 
 ```{r}
-prob <- create_cmop(probs$standard.050, eskal.instance = 2)
-prob
+prob <- create_cmop(probs$standard.100, distribution = "esqua")
 ```
 
 ## Check default:
 
 ```{r}
+prob <- create_cmop(probs$standard.050, distribution = "eskal")
 values <- fun_cyclone(
   prob$default, 
   fluid = prob$fluid, 
