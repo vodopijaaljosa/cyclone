@@ -18,29 +18,17 @@ knitr::opts_chunk$set(
 devtools::load_all()
 ```
 
-## Problems:
+## Create a problem and check if the standard cyclone satisfies the constraints:
 
 ```{r}
-probs
-```
-
-## Creating new problem instances:
-
-```{r}
-prob <- create_cmop(probs$standard.100, distribution = "esqua")
-```
-
-## Check default:
-
-```{r}
-prob <- create_cmop(probs$standard.050, distribution = "eskal")
+prob <- create_cmop(probs$standard.200, distribution = "eskal")
 values <- fun_cyclone(
   prob$default, 
   fluid = prob$fluid, 
   delta = prob$delta, 
   intervals = prob$intervals, 
   cons.bound = prob$cons.bound)
-c(1, rep(0, 8)) - values
+values
 ```
 
 ## Computing feasibility ratios:

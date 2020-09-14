@@ -21,7 +21,7 @@ make_plot <- function(res, run = 1, title = NULL) {
       ggplot2::ylab("f2: Pressure drop") +
       ggplot2::geom_point() +
       ggplot2::labs(title = title) +
-      ggplot2::xlim(0.9, 1) +
+      ggplot2::xlim(0.84, 1) +
       ggplot2::ylim(0, 1) +
       ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
 
@@ -30,7 +30,7 @@ make_plot <- function(res, run = 1, title = NULL) {
          xlab  = "f1: Collection efficency",
          ylab  = "f2: Pressure drop",
          main  = title,
-         xlim  = c(0.9, 1),
+         xlim  = c(0.84, 1),
          ylim  = c(0, 1500))
   }
 }
@@ -55,8 +55,6 @@ feas_ratios <- function(problem, sample.size = 1e6) {
   if ("cons" %in% names(problem)) {
     if (is.null(problem$cons)) {
       cons <- 3:9
-    } else if (!problem$cons) {
-      cons <- NULL
     } else {
       cons <- problem$cons + 2
     }
@@ -64,9 +62,13 @@ feas_ratios <- function(problem, sample.size = 1e6) {
     cons <- 3:9
   }
 
-  fun_both <- function(x) fun_cyclone(x, fluid = problem$fluid,
-                                      intervals = problem$intervals,
-                                      delta = problem$delta)
+  fun_both <- function(x) fun_cyclone(
+    x, 
+    fluid = problem$fluid,
+    intervals = problem$intervals,
+    delta = problem$delta,
+    cons.bound = problem$cons.bound
+  )
 
   pop <- t(replicate(sample.size, runif(6, problem$lower.bounds, problem$upper.bounds)))
   pop <- t(apply(pop, 1, fun_both))
@@ -115,7 +117,7 @@ create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
   if (!is.null(type)) {
     if (type == "low") {
       cons.bound <- list(
-        E = 0.85, 
+        E = 0.84, 
         deltaP = 1500, 
         geom.1 = 0, 
         geom.2 = 0.5
@@ -138,8 +140,15 @@ create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
   }
   
   prob.out <- list(
-    default = default, lower.bounds = lower.bounds, upper.bounds = upper.bounds, intervals = intervals, 
-    delta = delta, fluid = fluid, cons = cons, cons.bound = cons.bound, name = prob$name
+    default = default, 
+    lower.bounds = lower.bounds, 
+    upper.bounds = upper.bounds, 
+    fluid = fluid, 
+    intervals = intervals, 
+    delta = delta,
+    cons = cons, 
+    cons.bound = cons.bound, 
+    name = prob$name
   )
   
   return(prob.out)

@@ -104,8 +104,6 @@ run_nsga2 <- function(problem, control) {
   if ("cons" %in% names(problem)) {
     if (is.null(problem$cons)) {
       cons <- 3:9
-    } else if (!problem$cons) {
-      cons <- NULL
     } else {
       cons <- problem$cons + 2
     }
