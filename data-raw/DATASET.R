@@ -153,12 +153,12 @@ eskal <- list(
 
 ### List of CMOPs --------------------------------------------------------------
 
-cmops <- list(
+probs <- list(
   standard.050 = standard.050,
   standard.100 = standard.100,
   standard.200 = standard.200,
   standard.400 = standard.400
 )
 
-usethis::use_data(cmops, overwrite = TRUE)
+usethis::use_data(probs, overwrite = TRUE)
 usethis::use_data(eskal, overwrite = TRUE)
