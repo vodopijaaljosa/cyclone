@@ -57,7 +57,7 @@ standard.5 <- list(
   fluid = list(Vp = 2.50),
   eskal = c("delta10", "delta15"),
   esqua = c("delta7", "delta15"),
-  name = "Standard-5"
+  name = "S250"
 )
 
 standard.8 <- list(
@@ -65,7 +65,7 @@ standard.8 <- list(
   fluid = list(Vp = 5.00),
   eskal = c("delta15", "delta20"),
   esqua = c("delta15", "delta25"),
-  name = "Standard-8"
+  name = "S500"
 )
 
 standard.9 <- list(
@@ -81,7 +81,7 @@ standard.12 <- list(
   fluid = list(Vp = 0.5),
   eskal = c("delta500", "delta10"),
   esqua = c("delta7", "delta15"),
-  name = "Standard-12"
+  name = "S50"
 )
 
 # Eskal

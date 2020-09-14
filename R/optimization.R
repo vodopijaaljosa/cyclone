@@ -127,15 +127,18 @@ run_nsga2 <- function(problem, control) {
                       cprob        = cross.prob,
                       mprob        = mut.prob,
                       generations  = 1:no.iters)
-    prefix <- paste0("nsga2-mco-", problem$name)
-    res <- MOEAutils::save_run(res, prefix, fn = fun_both, objs = 1:2,
-                               cons = cons, ref.point = c(1.1, 1.1))
-    res.x <- res$pf$x
-    res.x <- data.frame(res.x)
-    names(res.x) <- c("Da", "Dt", "H", "Ht", "He", "Be")
-    res.y <- res$pf$y
-    res.y <- data.frame(ce = 1 - res.y[, 1], pd = res.y[, 2])
-    res <- list(x = res.x, y = res.y)
+
+    res <- find_pf(res, fun_both, cons)
+
+    #prefix <- paste0("nsga2-mco-", problem$name)
+    #res <- MOEAutils::save_run(res, prefix, fn = fun_both, objs = 1:2,
+    #                           cons = cons, ref.point = c(1.1, 1.1))
+    #res.x <- res$pf$x
+    #res.x <- data.frame(res.x)
+    #names(res.x) <- c("Da", "Dt", "H", "Ht", "He", "Be")
+    #res.y <- res$pf$y
+    #res.y <- data.frame(ce = 1 - res.y[, 1], pd = res.y[, 2])
+    #res <- list(x = res.x, y = res.y)
 
   } else {
     res <- NULL
@@ -331,7 +334,6 @@ find_opt_de <- function(res, fn, cons) {
   keep <- which.min(res.y)
   res.y <- res.y[keep]
   res <- res[keep, ]
-  names(res) <- c("Da", "Dt", "H", "Ht", "He", "Be")
   return(list(x = res, y = res.y))
 }
 

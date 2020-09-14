@@ -21,7 +21,7 @@ fun_cyclone <- function(cyclone,
                         intervals   = NULL,
                         delta       = NULL,
                         ratio.cut   = NULL,
-                        cons.bounds = c(0.9, 1500)){
+                        cons.bounds = c(0.8, 1500)){
 
   Da <- cyclone[1]
   Dt <- cyclone[2]

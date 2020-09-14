@@ -9,20 +9,21 @@
 #' @return A plot depicting Pareto front approximation of the selected run.
 #'
 #' @export
-make_plot <- function(res, run = 1, title = NULL, res.so = NULL, run.so = 1) {
+make_plot <- function(res, run = 1, title = NULL) {
+  # res.so = NULL, run.so = 1
   pf <- res[[paste0("run.", run)]]$y
-  #so <- ifelse(is.null(res.so), NULL, -res.so[[paste0("run.", run.so)]]$y)
-  #so <- max(abs(pf$ce)) #todo: replace
+  #so <- ifelse(is.null(res.so), NULL, 1 - res.so[[paste0("run.", run.so)]]$y)
+  so <- max(1 - pf$ce) #todo: replace
   if (requireNamespace("ggplot2", quietly = TRUE)) {
-    ggplot2::ggplot(pf, ggplot2::aes(x = ce, y = pd)) +
+    ggplot2::ggplot(pf, ggplot2::aes(x = 1 - ce, y = pd)) +
       ggplot2::theme_bw() +
       ggplot2::xlab("f1: Collection efficency") +
       ggplot2::ylab("f2: Pressure drop") +
       ggplot2::geom_point() +
       ggplot2::labs(title = title) +
       ggplot2::xlim(0.9, 1) +
-      ggplot2::ylim(0, 1)
-      #ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
+      ggplot2::ylim(0, 1) +
+      ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
 
   } else {
     plot(pf$ce, pf$pd,
@@ -102,7 +103,7 @@ create_cmop <- function(prob, eps = 0.1, eskal.instance = 2) {
     delta <- NULL
     intervals <- NULL
   }
-  return(list(lower.bounds = lower.bounds, upper.bounds = upper.bounds,
+  return(list(default = prob$default, lower.bounds = lower.bounds, upper.bounds = upper.bounds,
               intervals = intervals, delta = delta, fluid = fluid, cons = cons,
               name = name))
 }
