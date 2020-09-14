@@ -64,7 +64,7 @@ fun_cyclone <- function(cyclone,
   geom.cons.4 <- 1.25 * He - Ht
   geom.cons.5 <- 0.23 * Dt * (Da / (He * Be)) ^ (1 / 3) - H + Ht
   geom.cons <- c(geom.cons.1, geom.cons.2, geom.cons.3, geom.cons.4, geom.cons.5)
-  objs.cons <- objs - c(cons.bounds$E, cons.bound$deltaP)
+  objs.cons <- objs - c(cons.bound$E, cons.bound$deltaP)
   
   values <- c(1 - objs[1], objs[2] / cons.bound$deltaP, geom.cons, -objs.cons[1], objs.cons[2] / cons.bound$deltaP)
   

@@ -18,39 +18,51 @@ knitr::opts_chunk$set(
 library(cyclone)
 ```
 
-## cmops dataset:
+## Problems:
 
 ```{r}
-cmops
+probs
 ```
 
-## Creating new cmop instances:
+## Creating new problem instances:
 
 ```{r}
-loffler.15 <- create_cmop(cmops$loffler$default, 0.15)
-loffler.15
+prob <- create_cmop(probs$standard.050, eskal.instance = 2)
+prob
+```
+
+## Check default:
+
+```{r}
+values <- fun_cyclone(
+  prob$default, 
+  fluid = prob$fluid, 
+  delta = prob$delta, 
+  intervals = prob$intervals, 
+  cons.bound = prob$cons.bound)
+c(1, rep(0, 8)) - values
 ```
 
 ## Computing feasibility ratios:
 
 ```{r}
-feas_ratios(loffler.15)
+feas_ratios(prob, sample.size = 1e4)
 ```
 
 ## Optimization:
 
 ```{r}
-res.loffler.15 <- opt_mo(loffler.15)
+res <- opt_mo(prob)
 ```
 
 ## Means and deviations of geometrical parameters:
 
 ```{r}
-param_stat(res.loffler.15)
+param_stat(res)
 ```
 
 ## Plot:
 
 ```{r}
-make_plot(res.loffler.15)
+make_plot(res)
 ```

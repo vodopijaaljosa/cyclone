@@ -122,7 +122,7 @@ create_cmop <- function(prob, eps = 0.1, eskal.instance = 2) {
         E = 0.9, 
         deltaP = 1500, 
         geom.1 = 1, 
-        geom.2 = 0.45
+        geom.2 = 0.44
       )
     }
   } else {

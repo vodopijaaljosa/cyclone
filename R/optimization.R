@@ -87,6 +87,8 @@ run_nsga2 <- function(problem, control) {
   delta <- problem$delta
   intervals <- problem$intervals
   fluid <- problem$fluid
+  cons.bound <- problem$cons.bound
+  
   pop.size   <- control$pop.size
   no.iters   <- control$no.iters
   cross.prob <- control$cross.prob
@@ -111,9 +113,9 @@ run_nsga2 <- function(problem, control) {
     cons <- 3:9
   }
 
-  fun_objs <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals)[1:2]
-  fun_cons <- function(x) -fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals)[cons]
-  fun_both <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals)
+  fun_objs <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)[1:2]
+  fun_cons <- function(x) -fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)[cons]
+  fun_both <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)
 
   if (requireNamespace("mco", quietly = TRUE)){
     res <- mco::nsga2(fn           = fun_objs,
