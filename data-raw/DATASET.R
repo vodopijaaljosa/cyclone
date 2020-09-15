@@ -104,6 +104,15 @@ standard.12 <- list(
 
 # EMO paper --------------------------------------------------------------------
 
+standard.025 <- list(
+  default = c(0.45, 0.236, 1.57, 0.4, 0.224, 0.09),
+  fluid = list(Vp = 0.25),
+  eskal = "delta10",
+  esqua = "delta15",
+  type = "high",
+  name = "S025"
+)
+
 standard.050 <- list(
   default = c(0.63, 0.335, 2.23, 0.58, 0.315, 0.125),
   fluid = list(Vp = 0.5),
@@ -164,6 +173,7 @@ esqua <- list(
 ### List of CMOPs --------------------------------------------------------------
 
 probs <- list(
+  standard.025 = standard.025,
   standard.050 = standard.050,
   standard.100 = standard.100,
   standard.200 = standard.200,

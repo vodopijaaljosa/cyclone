@@ -21,7 +21,7 @@ make_plot <- function(res, run = 1, title = NULL) {
       ggplot2::ylab("f2: Pressure drop") +
       ggplot2::geom_point() +
       ggplot2::labs(title = title) +
-      ggplot2::xlim(0.84, 1) +
+      ggplot2::xlim(0.9, 1) +
       ggplot2::ylim(0, 1) +
       ggplot2::geom_vline(xintercept = so, linetype = "dashed", color = "red", size=1)
 
@@ -30,7 +30,7 @@ make_plot <- function(res, run = 1, title = NULL) {
          xlab  = "f1: Collection efficency",
          ylab  = "f2: Pressure drop",
          main  = title,
-         xlim  = c(0.84, 1),
+         xlim  = c(0.9, 1),
          ylim  = c(0, 1500))
   }
 }
@@ -63,7 +63,7 @@ feas_ratios <- function(problem, sample.size = 1e6) {
   }
 
   fun_both <- function(x) fun_cyclone(
-    x, 
+    x,
     fluid = problem$fluid,
     intervals = problem$intervals,
     delta = problem$delta,
@@ -94,11 +94,11 @@ create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
   dc <- default * eps
   lower.bounds <- default - dc
   upper.bounds <- default + dc
-  
+
   fluid <- prob$fluid
   cons <- prob$cons
   type <- prob$type
-  
+
   if (distribution == "eskal") {
     delta <- eskal[[prob$eskal]]
     intervals <- eskal$intervals[1:(length(delta) + 1)]
@@ -111,46 +111,46 @@ create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
     delta <- NULL
     intervals <- NULL
   }
-  
+
   if (is.null(cons)) cons <- 1:7
-  
+
   if (!is.null(type)) {
     if (type == "low") {
       cons.bound <- list(
-        E = 0.84, 
-        deltaP = 1500, 
-        geom.1 = 0, 
+        E = 0.84,
+        deltaP = 1500,
+        geom.1 = 0,
         geom.2 = 0.5
       )
     } else {
       cons.bound <- list(
-        E = 0.9, 
-        deltaP = 1500, 
-        geom.1 = 1, 
-        geom.2 = 0.44
+        E = 0.9,
+        deltaP = 1500,
+        geom.1 = 1,
+        geom.2 = 0.4
       )
     }
   } else {
     cons.bound <- list(
-      E = 0.9, 
-      deltaP = 1500, 
-      geom.1 = 1, 
+      E = 0.9,
+      deltaP = 1500,
+      geom.1 = 1,
       geom.2 = 0.5
     )
   }
-  
+
   prob.out <- list(
-    default = default, 
-    lower.bounds = lower.bounds, 
-    upper.bounds = upper.bounds, 
-    fluid = fluid, 
-    intervals = intervals, 
+    default = default,
+    lower.bounds = lower.bounds,
+    upper.bounds = upper.bounds,
+    fluid = fluid,
+    intervals = intervals,
     delta = delta,
-    cons = cons, 
-    cons.bound = cons.bound, 
+    cons = cons,
+    cons.bound = cons.bound,
     name = prob$name
   )
-  
+
   return(prob.out)
 }
 

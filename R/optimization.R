@@ -88,7 +88,7 @@ run_nsga2 <- function(problem, control) {
   intervals <- problem$intervals
   fluid <- problem$fluid
   cons.bound <- problem$cons.bound
-  
+
   pop.size   <- control$pop.size
   no.iters   <- control$no.iters
   cross.prob <- control$cross.prob
@@ -129,16 +129,16 @@ run_nsga2 <- function(problem, control) {
                       generations  = 1:no.iters)
 
     prefix <- paste0("nsga2-mco-", problem$name)
-    
-    MOEAutils::save_run(
-      res, 
-      prefix, 
-      fn = fun_both, 
-      objs = 1:2,
-      cons = cons, 
-      ref.point = c(1.1, 1.1)
-    )
-    
+
+    #MOEAutils::save_run(
+    #  res,
+    #  prefix,
+    #  fn = fun_both,
+    #  objs = 1:2,
+    #  cons = cons,
+    #  ref.point = c(1.1, 1.1)
+    #)
+
     res.out <- find_pf(res, fun_both, cons)
 
   } else {
@@ -294,6 +294,21 @@ run_de <- function(problem, control) {
   res <- find_opt_de(res, fun_both, cons)
 
   return(res)
+}
+
+### Single ---------------------------------------------------------------------
+
+fun_default <- function(prob) {
+
+  values <- fun_cyclone(
+    prob$default,
+    fluid = prob$fluid,
+    delta = prob$delta,
+    intervals = prob$intervals,
+    cons.bound = prob$cons.bound
+  )
+
+  return(values)
 }
 
 ### Helpers --------------------------------------------------------------------
