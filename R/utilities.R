@@ -139,6 +139,12 @@ create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
     )
   }
 
+  eps.str <- toString(eps)
+  if (nchar(eps.str) < 4) {
+    eps.str <- paste0(eps.str, 0)
+  }
+  eps.str <- substr(eps.str, start = 3, stop = 4)
+
   prob.out <- list(
     default = default,
     lower.bounds = lower.bounds,
@@ -148,7 +154,7 @@ create_cmop <- function(prob, eps = 0.1, distribution = "eskal") {
     delta = delta,
     cons = cons,
     cons.bound = cons.bound,
-    name = prob$name
+    name = paste0(prob$name, "_", eps.str)
   )
 
   return(prob.out)

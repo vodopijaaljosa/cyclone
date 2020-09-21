@@ -35,7 +35,8 @@
 opt_mo <- function(problem,
                    method  = c("nsga2", "demo"),
                    control = NULL,
-                   no.runs = 1) {
+                   no.runs = 1,
+                   save.res = FALSE) {
 
   method <- match.arg(method)
 
@@ -64,15 +65,28 @@ opt_mo <- function(problem,
 
   if (method == "nsga2") {
     for (i in 1:no.runs) {
-      if (!requireNamespace("mco", quietly = TRUE)) stop("'mco' package is required", call. = FALSE)
-      pfs[[paste0("run.", i)]] <- run_nsga2(problem = problem,
-                                            control = control)
+
+      if (!requireNamespace("mco", quietly = TRUE)) {
+        stop("'mco' package is required", call. = FALSE)
+      }
+
+      pfs[[paste0("run.", i)]] <- run_nsga2(
+        problem = problem,
+        control = control,
+        save.res = save.res
+      )
+
     }
 
   } else {
     for (i in 1:no.runs) {
-      pfs[[paste0("run.", i)]] <- run_demo(problem = problem,
-                                           control = control)
+
+      pfs[[paste0("run.", i)]] <- run_demo(
+        problem = problem,
+        control = control,
+        save.res = save.res
+      )
+
     }
   }
 
@@ -80,7 +94,7 @@ opt_mo <- function(problem,
 }
 
 ### NSGA-II -----------------------------------------------------------------------------
-run_nsga2 <- function(problem, control) {
+run_nsga2 <- function(problem, control, save.res = FALSE) {
 
   lower.bounds <- problem$lower.bounds
   upper.bounds <- problem$upper.bounds
@@ -116,30 +130,43 @@ run_nsga2 <- function(problem, control) {
   fun_both <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)
 
   if (requireNamespace("mco", quietly = TRUE)){
-    res <- mco::nsga2(fn           = fun_objs,
-                      idim         = length(lower.bounds),
-                      odim         = 2,
-                      lower.bounds = lower.bounds,
-                      upper.bounds = upper.bounds,
-                      constraints  = fun_cons,
-                      cdim         = length(cons),
-                      popsize      = pop.size,
-                      cprob        = cross.prob,
-                      mprob        = mut.prob,
-                      generations  = 1:no.iters)
+    res <- mco::nsga2(
+      fn = fun_objs,
+      idim = length(lower.bounds),
+      odim = 2,
+      lower.bounds = lower.bounds,
+      upper.bounds = upper.bounds,
+      constraints = fun_cons,
+      cdim = length(cons),
+      popsize = pop.size,
+      cprob = cross.prob,
+      mprob = mut.prob,
+      generations  = 1:no.iters
+    )
 
-    prefix <- paste0("nsga2-mco-", problem$name)
+    if (save.res) {
+      prefix <- paste0("nsga2-mco-", problem$name)
 
-    #MOEAutils::save_run(
-    #  res,
-    #  prefix,
-    #  fn = fun_both,
-    #  objs = 1:2,
-    #  cons = cons,
-    #  ref.point = c(1.1, 1.1)
-    #)
+      res <- MOEAutils::save_run(
+        res,
+        prefix,
+        fn = fun_both,
+        objs = 1:2,
+        cons = cons,
+        ref.point = c(1.1, 1.1)
+      )
 
-    res.out <- find_pf(res, fun_both, cons)
+      res.out <- list(
+        x = as.data.frame(res$pf$x),
+        y = as.data.frame(res$pf$y)
+      )
+
+      names(res.out$x) <- c("Da", "Dt", "H", "Ht", "He", "Be")
+      names(res.out$y) <- c("ce", "pd")
+
+    } else {
+      res.out <- find_pf(res, fun_both, cons)
+    }
 
   } else {
     res.out <- NULL
