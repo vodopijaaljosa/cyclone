@@ -33,7 +33,7 @@
 #'
 #' @export
 opt_mo <- function(problem,
-                   method  = c("nsga2", "demo"),
+                   method  = c("nsga2", "demo", "moead"),
                    control = NULL,
                    no.runs = 1,
                    save.res = FALSE) {
@@ -76,6 +76,20 @@ opt_mo <- function(problem,
         save.res = save.res
       )
 
+    }
+  } else if (method == "moead") {
+
+    for (i in 1:no.runs) {
+
+      if (!requireNamespace("MOEADr", quietly = TRUE)) {
+        stop("'MOEADr' package is required", call. = FALSE)
+      }
+
+      pfs[[paste0("run.", i)]] <- run_moead(
+        problem = problem,
+        control = control
+        #TODO: save.res = save.res
+      )
     }
 
   } else {
@@ -173,6 +187,94 @@ run_nsga2 <- function(problem, control, save.res = FALSE) {
   }
 
   return(res.out)
+}
+
+### MOEA/D ---------------------------------------------------------------------
+run_moead <- function(problem, control) {
+
+  lower.bounds <- problem$lower.bounds
+  upper.bounds <- problem$upper.bounds
+  delta <- problem$delta
+  intervals <- problem$intervals
+  fluid <- problem$fluid
+  cons.bound <- problem$cons.bound
+
+  pop.size   <- control$pop.size
+  no.iters   <- control$no.iters
+  cross.prob <- control$cross.prob
+  mut.prob   <- control$mut.prob
+
+  if (requireNamespace("memoise", quietly = TRUE)){
+    tryCatch({
+      fun_cyclone <- memoise::memoise(fun_cyclone)
+    }, error = function(err) {
+    })
+  }
+
+  if ("cons" %in% names(problem)) {
+    if (is.null(problem$cons)) {
+      cons <- 3:9
+    } else {
+      cons <- problem$cons + 2
+    }
+  } else {
+    cons <- 3:9
+  }
+
+  fun_objs <- function(X) {
+    out <- t(apply(X, 1, function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)[1:2]))
+    return(out)
+  }
+
+  fun_cons <- function(X) {
+    Cmatrix <- t(apply(X, 1, function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)[cons]))
+    Vmatrix <- pmax(Cmatrix, 0)
+    return(list(Cmatrix = Cmatrix,
+                Vmatrix = Vmatrix,
+                v = rowSums(Vmatrix)))
+  }
+
+  fun_both <- function(x) fun_cyclone(x, fluid = fluid, delta = delta, intervals = intervals, cons.bound = cons.bound)
+
+  problem <- list(name = "fun_objs",
+                  xmin = lower.bounds,
+                  xmax = upper.bounds,
+                  m = 2,
+                  constraints = list(name = "fun_cons"))
+
+  decomp <- list(name = "SLD", H = pop.size - 1)
+
+  neighbors <- list(name = "lambda",
+                    T = 20,
+                    delta.p = 1)
+
+  aggfun <- list(name = "wt")
+
+  variation <- list(list(name = "sbx",
+                         etax = 20, pc = cross.prob),
+                    list(name = "polymut",
+                         etam = 20, pm = mut.prob),
+                    list(name = "truncate"))
+
+  update <- list(name = "standard", UseArchive = TRUE)
+
+  scaling <- list(name = "none")
+
+  constraint<- list(name = "penalty", beta = 0.5)
+
+  stopcrit <- list(list(name = "maxiter",
+                        maxiter = no.iters))
+
+  showpars <- list(show.iters = "dots",
+                   showevery = 10)
+
+  seed <- sample(1:100000, 1)
+
+  res <- moead(preset = NULL,
+               problem, decomp, aggfun, neighbors, variation, update,
+               constraint, scaling, stopcrit, showpars, seed)
+
+  res.out <- find_pf_moead(res, fun_both, cons)
 }
 
 ### DEMO -----------------------------------------------------------------------
@@ -359,6 +461,28 @@ find_pf <- function(res, fn, cons) {
   res <- data.frame(res)
   names(res) <- c("Da", "Dt", "H", "Ht", "He", "Be")
   return(list(x = res, y = res.y))
+}
+
+find_pf_moead <- function(res, fn, cons) {
+  res.y <- res$Archive$Y
+  res.x <- res$Archive$X
+  res.v <- res$Archive$V$v
+
+  if (!is.null(cons)) {
+    res.y <- res.y[res.v == 0, ]
+  }
+
+  keep <- emoa::nds_rank(t(as.matrix(res.y))) == 1
+  res.x  <- res.x[keep, ]
+  res.y <- res.y[keep, ]
+
+  res.x <- as.data.frame(res.x)
+  res.y <- as.data.frame(res.y)
+
+  names(res.x) <- c("Da", "Dt", "H", "Ht", "He", "Be")
+  names(res.y) <- c("ce", "pd")
+
+  return(list(x = res.x, y = res.y))
 }
 
 find_opt_de <- function(res, fn, cons) {
