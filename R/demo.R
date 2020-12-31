@@ -24,9 +24,12 @@ demo <- function(fn,
     pop.x.new <- crossover(pop.x.new, pop.x, cross.prob)
     pop.y.new <- t(apply(pop.x.new, 1, fn))
 
-    sort <- nsga2CdSelection(pop.x, pop.y, pop.x.new, pop.y.new, no.cons = no.cons)
-    pop.x <- sort$x
-    pop.y <- sort$y
+    pop.x.all <- rbind(pop.x, pop.x.new)
+    pop.y.all <- rbind(pop.y, pop.y.new)
+    keep <- cdpSelection(pop.y.all, pop.size, no.cons = no.cons)
+
+    pop.x <- pop.x.all[keep, ]
+    pop.y <- pop.y.all[keep, ]
     pop.x.archive[[i]]$par <- pop.x
   }
 
@@ -81,7 +84,7 @@ crossDE <- function(ind.i, pop.x.new, pop.x, cross.prob) {
   return(ind.x)
 }
 
-# Survivor selection
+# Survivor selection 1
 nsga2CdSelection <- function(pop.x,
                              pop.y,
                              pop.x.new,
@@ -124,4 +127,3 @@ nsga2CdSelection <- function(pop.x,
 
   return(list(x = pop.x.next, y = pop.y.next))
 }
-
